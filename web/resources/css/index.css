@@ -1,0 +1,81 @@
+.ui-layout,.ui-layout-unit,.ui-layout-unit-content{
+     background-color: bisque;
+}
+.ui-layout-resizer-west{
+    background-color: bisque;
+    border: none;
+}
+body{
+    font-size: small !important;
+}
+.ui-layout-unit,.ui-datatable,.ui-toolbar{
+    padding:0px !important;
+    margin:0px !important;
+    border: none !important;
+}
+#form\:topbar .ui-layout-unit-content{
+    overflow-y: hidden !important;
+}
+td,.ui-datatable-data{
+    padding:0.5px !important;
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+    text-align: center !important;
+    margin:0px !important;
+}
+.ui-autocomplete {
+    max-height: 700px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+}
+.edittag{
+    padding:3px !important;
+    margin:3px !important;
+}
+.notvalidatednewrow{
+    background-color: indianred;
+}
+.validatednewrow{
+    background-color: lightblue;
+}
+.editedrow{
+    background-color: darkseagreen;
+}
+.deletedrow{
+    background-color: dimgray;
+}
+.header{
+    font-size: 1.1em;
+    height: 50px;
+    padding: 7px;
+}
+.divpanel{
+    background-color: bisque;
+    border-right-style: inset;
+    border-bottom-style: inset;
+    border-top-style: outset;
+    border-left-style: outset;
+    border-color: hsl(33, 100%, 80%);
+}
+.texts{
+    float: left;
+    position: relative;
+    top: -7px;
+    margin: 7px;
+    -webkit-user-select: none; /* Chrome, Opera, Safari */
+    -moz-user-select: none; /* Firefox 2+ */
+    -ms-user-select: none; /* IE 10+ */
+}
+h3{
+    color: rgba(0,0,0,0.7);
+    text-shadow: 0px 2px 3px rgba(0,0,0,0.4),
+        0px 4px 13px rgba(0,0,0,0.1),
+        0px 8px 23px rgba(0,0,0,0.1);
+}
+#form\:btUser_menu {
+    width:80px !important;
+    padding:0px;
+} 
+        
+

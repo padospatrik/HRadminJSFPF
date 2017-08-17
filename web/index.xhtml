@@ -1,0 +1,355 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+<h:head>
+    <title>HR Admin</title>
+    <h:outputStylesheet library="css" name="index.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js">
+    </script>
+    <h:outputScript name="index.js" library="script" target="head"/>
+    <script>
+        
+    </script>
+    <style>
+ 
+    </style>
+</h:head>
+<h:body style="background-color: white;">
+    <h:form id="formheader">
+        <p:socket onMessage="preparePushBack" channel="/push" >
+            <p:ajax event="message" process="pushText" oncomplete="handlePush()"/>
+        </p:socket>
+        <p:socket id="logoutSocket" onMessage="prepareLogoutPushBack" channel="/pushlogout/#{mb.sessionId}" >
+        </p:socket>
+        <p:inputText id="pushText" value="#{mb.pushBack}" style="display:none"/>
+
+    <div class="header divpanel">
+        <div class="texts" style="transform: rotate(20deg);"><h3>Java EE</h3></div>
+        <div class="texts" style="transform: rotate(20deg);"><h3>GlassFish</h3></div>
+        <div class="texts" style="transform: rotate(10deg);"><h3>Java Server Faces</h3></div>
+        <div class="texts" style="transform: rotate(-20deg);"><h3>Primefaces</h3></div>
+        <div class="texts" style="transform: rotate(30deg);"><h3>Servlet</h3></div>
+        <div class="texts" style="transform: rotate(-15deg);"><h3>Javascript</h3></div>
+        <div class="texts" style="transform: rotate(10deg);"><h3>CSS</h3></div>
+        <div class="texts" style="transform: rotate(5deg);"><h3>JQuery</h3></div>
+        <div class="texts" style="transform: rotate(-10deg);"><h3>AJAX</h3></div>
+        <div class="texts" style="transform: rotate(25deg);"><h3>JSON</h3></div>
+        <div class="texts" style="transform: rotate(-5deg);"><h3>Hibernate</h3></div>
+    </div>
+
+    </h:form>
+    <div style="clear: left" class="divpanel">
+    <h:form id="form">
+    <p:remoteCommand name="handlePush" action="#{mb.setRefreshTree()}"/>
+    <p:remoteCommand name="refreshFields" update=":form:employees" />
+    <p:remoteCommand name="rcLogout" action="#{login.logout()}" />
+    <p:blockUI block="mainlayout" trigger="btWithdraw,btSave,btEView,btTView" />
+    <p:blockUI block="mainlayout" widgetVar="bui" />
+    <p:layout id="mainlayout" fullPage="false" style="width: 98%;min-height: 750px;padding: 10px;
+              max-height: 750px;
+              background-color: bisque;border: none">
+
+        <!--<p:layoutUnit position="north" size="50" style="background-color: transparent;
+                      opacity: 1;border: none">
+            <h:outputText value="Top content." style="opacity: 1"/>
+        </p:layoutUnit>
+        <p:layoutUnit position="south" size="100" style="background-color: bisque">
+            <h:outputText value="Bottom content." />
+        </p:layoutUnit>-->
+        <p:layoutUnit position="west" size="200" header="HR Schema" 
+                      resizable="true" collapsible="true">
+            
+            <p:growl id="messages" showDetail="true" />
+            <p:tree id="eTree" value="#{mb.root}" var="node" widgetVar="weTree" 
+                    selectionMode="single" selection="#{mb.selectedNode}" draggable="#{!mb.underEdit}" droppable="#{!mb.underEdit}">
+                <p:ajax partialSubmit="true" process="@this,:form:searchField" id="treeselect" event="select" 
+                        update="#{mb.activeTab==''?':form:employees':mb.activeTab} :form:btEView :form:btTView :form:searchField :form:acGo :form:eTree :form:searchBar"
+                        listener="#{mb.onNodeSelect}" onstart="PF('bui').show()" oncomplete="PF('bui').hide(),employeeFilter()"
+                        />
+                <p:ajax event="expand" listener="#{mb.nodeExpand}" />
+                <p:ajax event="collapse" listener="#{mb.nodeCollapse}" />
+                <p:ajax event="dragdrop" listener="#{mb.onDragDrop}" 
+                        update="#{mb.activeTab==''?':form:employees':mb.activeTab} :form:messages :form:eTree" 
+                        onstart="PF('bui').show()" oncomplete="PF('bui').hide()"/>
+                <p:treeNode>
+                    <h:outputText value="#{node}" />
+                </p:treeNode>
+            </p:tree>
+
+        </p:layoutUnit>
+
+        <p:layoutUnit position="center" >
+            <p:layout style="padding: 0px;margin: 0px;border: none">
+                <p:layoutUnit id="topbar" position="north" size="60" >
+                    <p:toolbar id="searchBar" style="width:245px;float:left;visibility:#{mb.searchBarVisibility};">
+                        <f:facet name="left">
+                        <h:outputText value="Search:" style="padding:2px"/>
+                        <p:inputText id="searchField" widgetVar="wsearchField" value="#{mb.employeeSearchText}" 
+                                     style="width:150px;font-size: small" placeholder="Enter keyword">
+                        </p:inputText>
+                        <p:commandButton id="acGo" icon="ui-icon-triangle-1-e" 
+                            style="height:20px;width: 20px;position:relative;top:3px;left:4px"
+                            partialSubmit="true" process="@this,:form:searchField" 
+                            action="#{mb.employeeFilter}" disabled="false"   
+                            update=":form:employees" oncomplete="offAutocomplete()"/>
+                        </f:facet>
+                    </p:toolbar>
+                        <p:menuButton id="btUser" value="#{mb.username}" style="height:20px;font-size: 0.85em;float:right">
+                            <p:menuitem  value="Logout" onclick="logOut()" partialSubmit="true" process="@this"
+                                        style="height:15px;font-size: 0.85em">
+                            </p:menuitem>
+                        </p:menuButton>
+                <p:toolbar style="clear:both">
+                <f:facet name="left">
+                    <p:commandButton value="Add" icon="ui-icon-arrowreturnthick-1-e" 
+                            action="#{mb.addRow}" partialSubmit="true" process="@this"
+                        update=":form:employees :form:table btWithdraw btExport btSave :form:btEView :form:btTView :form:eTree :form:searchField"/>
+                    <p:commandButton value="Delete" icon="ui-icon-trash" 
+                        action="#{mb.deleteRow}" partialSubmit="true" process="@this,:form:employees,:form:table "
+                        update=":form:employees :form:table btWithdraw btExport btSave :form:btEView :form:btTView :form:eTree :form:searchField" />
+                    <p:splitButton id="btExport" value="Export" icon="ui-icon-extlink" disabled="#{mb.underEdit}">
+                        <p:menuitem value="as Excel" ajax="false">
+                            <p:dataExporter type="xlsx" target="#{mb.activeTab}" fileName="#{exportb.fileName}"
+                                postProcessor="#{exportb.postProcessXLSX}"/>
+                        </p:menuitem>
+                        <p:menuitem value="as PDF" ajax="false" >
+                            <p:dataExporter type="pdf" target="#{mb.activeTab}" fileName="#{exportb.fileName}" 
+                                preProcessor="#{exportb.preProcessPDF}"
+                                options="#{exportb.pdfOpt}"/>
+                        </p:menuitem>
+                    </p:splitButton>
+                </f:facet>
+
+                <f:facet name="right">
+                    <p:commandButton id="btWithdraw" value="Withdraw" icon="ui-icon-cancel" 
+                                     disabled="#{!mb.underEdit}"
+                        action="#{mb.withdraw}" partialSubmit="true" process="@this,:form:searchField"
+                        update=":form:employees :form:table btWithdraw btExport btSave :form:btEView :form:btTView :form:eTree" 
+                        oncomplete="employeeFilter()"/>
+                    <span class="ui-separator">
+                        <span class="ui-icon ui-icon-grip-dotted-vertical" />
+                    </span>
+                    <p:commandButton id="btSave" value="Save" icon="ui-icon-check" disabled="#{!mb.underEdit}"
+                                     action="#{mb.save}" validateClient="true" 
+                                     partialSubmit="true" process="@this,:form:searchField"
+                        update=":form:employees :form:table btWithdraw btExport btSave 
+                            :form:btEView :form:btTView :form:eTree :form:messages "
+                        oncomplete="employeeFilter()"/>
+                </f:facet>
+                </p:toolbar>
+                </p:layoutUnit>
+                <p:layoutUnit position="center">
+            <p:toolbar>
+                <f:facet name="left">
+                    <p:commandButton id="btEView" value="Employees-view" disabled="#{mb.underEdit}"
+                        partialSubmit="true" process="@this"
+                        action="#{mb.clickEmployeesView}" style="background-color: #{mb.btEViewClass}"   
+                        update=":form:employees :form:table :form:eTree btEView btTView btExport :form:searchBar"
+                        oncomplete="employeeFilter()"/>
+                    <p:commandButton id="btTView" value="Table-view" disabled="#{mb.underEdit}"
+                        partialSubmit="true" process="@this"
+                        action="#{mb.clickTableView}" style="background-color: #{mb.btTViewClass}"
+                        update=":form:employees :form:table :form:eTree btEView btTView btExport :form:searchBar"/>
+                </f:facet>
+            </p:toolbar>
+            <p:growl id="validation" showDetail="false" />
+            <p:dataTable id="employees" var="record" value="#{employeeBean.lazyModel}" lazy="true"
+                        editable="true" sortBy="#{record.id}" paginator="true" rows="20"
+                        widgetVar="employeesTable" selectionMode="multiple"
+                        selection="#{employeeBean.selectedEmployees}" rowKey="#{record.id}"
+                        style="font-size: small;display: #{mb.employeesDisplay};
+                        table-layout: fixed;word-wrap: break-word;">
+                <p:ajax event="rowEdit" listener="#{mb.onRowEdit}" update=":form:eTree :form:btWithdraw 
+                        :form:btSave :form:btEView :form:btTView :form:validation :form:searchField"/>
+                
+                <p:column exportable="false" style="width: 2px;max-width: 2px" styleClass="#{record.editTag} edittag">
+                </p:column>
+                <p:column headerText="Id" style="width:20px" sortBy="#{record.id}" >
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.id}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record.id}" required="#{mb.columnRequired('EMPLOYEE_ID')}"
+                                disabled="#{record.editTag=='notvalidatednewrow'?false:record.editTag=='validatednewrow'?false:true}" style="width:100%" >
+                        <f:validateLongRange minimum="0" maximum="#{mb.validateLength('EMPLOYEE_ID')}"/><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="First Name" sortBy="#{record.firstname}" >
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.firstname}" /></f:facet>
+                        <f:facet name="input"><p:inputText id="iFirstname" required="#{mb.columnRequired('FIRST_NAME')}"
+                                value="#{record.firstname}" style="width:100%">
+                        <f:validateLength maximum="#{mb.validateLength('FIRST_NAME')}" /><p:clientValidator />
+                        </p:inputText>
+                            </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Last name" sortBy="#{record.lastname}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.lastname}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record.lastname}" required="#{mb.columnRequired('LAST_NAME')}"
+                                        style="width:100%">
+                        <f:validateLength maximum="#{mb.validateLength('LAST_NAME')}" /><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Email" >
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.email}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record.email}" required="#{mb.columnRequired('EMAIL')}"
+                                style="width:100%">
+                        <f:validateLength maximum="#{mb.validateLength('EMAIL')}" /><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Phone number" >
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.phnumber}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record.phnumber}" required="#{mb.columnRequired('PHONE_NUMBER')}"
+                                    style="width:100%">
+                        <f:validateLength maximum="#{mb.validateLength('PHONE_NUMBER')}" /><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Hire date" sortBy="#{record.hiredate}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.hiredate}">
+                            <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </f:facet>
+
+                        <f:facet name="input"><p:inputText value="#{record.hiredate}" style="width:100%" required="#{mb.columnRequired('HIRE_DATE')}">
+                            <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </p:inputText>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Job Id" sortBy="#{record.jobId}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.jobId}" /></f:facet>
+                        <f:facet name="input">
+                        <h:selectOneMenu value="#{record.jobId}" style="width:100%">
+                            <f:selectItems value="#{mb.getForeignKeys('JOB_ID')}" var="man" itemLabel="#{man[0]} | #{man[1]}" itemValue="#{man[0]}" />
+                        </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Salary" sortBy="#{record.salary}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.salary}"><f:convertNumber/></h:outputText></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record.salary}" required="#{mb.columnRequired('SALARY')}"
+                                style="width:100%">
+                            
+                            <f:validateLongRange minimum="0" maximum="#{mb.validateLength('SALARY')}"/><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Commission(%)" style="width:40px" sortBy="#{record.commission}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.commission}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record.commission}" required="#{mb.columnRequired('COMMISSION_PCT')}"
+                                        style="width:100%">
+                            <f:validateLongRange minimum="0" maximum="#{mb.validateLength('COMMISSION_PCT')}"/><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Manager Id" style="width:40px" sortBy="#{record.managerId}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.managerId}" /></f:facet>
+                        <f:facet name="input">
+                        <h:selectOneMenu value="#{record.managerId}" style="width:100%">
+                            <f:selectItems value="#{mb.getForeignKeys('MANAGER_ID')}" var="man" itemLabel="#{man[0]} | #{man[1]}" itemValue="#{man[0]}" />
+                        </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column headerText="Department Id" style="width:40px" sortBy="#{record.departmentId}">
+                    <p:cellEditor>
+                        <f:facet name="output"><h:outputText value="#{record.departmentId}" /></f:facet>
+                        <f:facet name="input">
+                        <h:selectOneMenu value="#{record.departmentId}" style="width:100%">
+                            <f:selectItems value="#{mb.getForeignKeys('DEPARTMENT_ID')}" var="man" itemLabel="#{man[0]} | #{man[1]}" itemValue="#{man[0]}" />
+                        </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:column>
+                <p:column exportable="false" style="width:15px">
+                    <p:rowEditor id="pencil"/>
+                </p:column>
+            </p:dataTable>
+            
+            <p:dataTable id="table" var="record" value="#{tableBean.lazyModel}" lazy="true"
+                        editable="true" sortBy="#{record.id}" paginator="true" rows="20"
+                        selectionMode="multiple"
+                        selection="#{tableBean.selectedRows}" rowKey="#{record.id}"
+                        style="font-size: small;display: #{mb.tableDisplay};
+                        table-layout: fixed;word-wrap: break-word;"
+                         >
+                <p:ajax event="rowEdit" listener="#{mb.onRowEdit}" update=":form:eTree :form:btWithdraw 
+                        :form:btSave :form:btEView :form:btTView :form:validation :form:searchField"/>
+                
+                <p:column exportable="false" style="width: 2px;max-width: 2px" styleClass="#{record.editTag} edittag">
+                </p:column>                
+                <p:columns value="#{tableBean.columns}" var="column" columnIndexVar="colIndex" sortBy="#{record[column.javaname]}">
+                    <f:facet name="header">
+                        <h:outputText value="#{column.headername}" />
+                    </f:facet>
+                    <p:cellEditor rendered="#{column.refTable ne null}">
+                        <f:facet name="output"><h:outputText value="#{record[column.javaname]}" /></f:facet>
+                        <f:facet name="input">
+                        <h:selectOneMenu value="#{record[column.javaname]}" >
+                            <f:selectItems value="#{mb.getForeignKeys(column.columnname)}" var="man" itemLabel="#{man[0]} | #{man[1]}" itemValue="#{man[0]}" />
+                        </h:selectOneMenu>
+                        </f:facet>
+                    </p:cellEditor>
+                    <p:cellEditor rendered="#{column.javaname eq 'id'}">
+                        <f:facet name="output"><h:outputText value="#{record[column.javaname]}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record[column.javaname]}" required="#{mb.columnRequired(column.columnname)}"
+                                disabled="#{record.editTag=='notvalidatednewrow'?false:record.editTag=='validatednewrow'?false:true}"  >
+                        <f:validateLongRange minimum="0" /><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>                    
+                    <p:cellEditor rendered="#{column.type eq 'NUMBER' and column.javaname ne 'id' and column.refTable eq null}">
+                        <f:facet name="output"><h:outputText value="#{record[column.javaname]}"><f:convertNumber/></h:outputText></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record[column.javaname]}" required="#{mb.columnRequired(column.columnname)}"
+                                  >
+                        <f:validateLongRange minimum="0" /><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                    <p:cellEditor rendered="#{column.type eq 'VARCHAR2' and column.javaname ne 'id' and column.refTable eq null}">
+                        <f:facet name="output"><h:outputText value="#{record[column.javaname]}" /></f:facet>
+                        <f:facet name="input"><p:inputText value="#{record[column.javaname]}" required="#{mb.columnRequired(column.columnname)}"
+                                >
+                        <f:validateLength minimum="0"/><p:clientValidator />
+                        </p:inputText></f:facet>
+                    </p:cellEditor>
+                    <p:cellEditor rendered="#{column.type eq 'DATE' and column.javaname ne 'id'}">
+                        <f:facet name="output"><h:outputText value="#{record[column.javaname]}">
+                            <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </h:outputText>
+                        </f:facet>
+                        <f:facet name="input"><p:inputText value="#{record[column.javaname]}" required="#{mb.columnRequired(column.columnname)}">
+                            <f:convertDateTime pattern="yyyy-MM-dd" />
+                            </p:inputText>
+                        </f:facet>
+                    </p:cellEditor>
+                </p:columns>
+                <p:column exportable="false" style="width:15px">
+                    <p:rowEditor id="pencil"/>
+                </p:column>
+            </p:dataTable>
+            
+            </p:layoutUnit>
+            </p:layout>
+
+        </p:layoutUnit>
+    </p:layout>
+</h:form>
+</div>
+</h:body>
+</html>
+

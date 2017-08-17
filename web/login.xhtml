@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+
+>
+<!--https://javatutorial.net/glassfish-form-based-authentication-example-->
+<h:head>
+    <title>HRAdmin Login</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js">    
+    </script>
+    <script>
+        $(document).ready(function(){
+            $("#form").slideDown("slow");
+        });
+    </script> 
+   <style>
+        input,label{
+            font-size: 0.85em;
+        }
+        #wrapper{
+            font-size: 0.9em;
+            border-right-style: inset;
+            border-bottom-style: inset;
+            border-top-style: outset;
+            border-left-style: outset;
+            border-color: hsl(33, 100%, 80%);
+        }
+        #form{
+            height: 50px;
+            width: 30%;
+            padding: 3px;
+            position: absolute;
+            top: 10px;
+            display:none;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            background: linear-gradient(to bottom, hsl(33, 100%, 100%), hsl(33, 100%, 88%));
+            border-radius: 4px;
+            border-style: outset;
+            border-color: bisque;
+        }
+        .texts{
+            float: left;
+            position: relative;
+            top: -7px;
+            margin: 7px;
+            -webkit-user-select: none; /* Chrome, Opera, Safari */
+            -moz-user-select: none; /* Firefox 2+ */
+            -ms-user-select: none; /* IE 10+ */
+        }
+        h3{
+            color: rgba(0,0,0,0.7);
+            text-shadow: 0px 2px 3px rgba(0,0,0,0.4),
+                0px 4px 13px rgba(0,0,0,0.1),
+                0px 8px 23px rgba(0,0,0,0.1);
+        }
+
+    </style>
+</h:head>
+<h:body>
+    
+    <div id="wrapper" style="height: 50px;width: 98%;padding: 7px;background-color: bisque">
+        <div class="texts" style="transform: rotate(20deg);"><h3>Java EE</h3></div>
+        <div class="texts" style="transform: rotate(20deg);"><h3>GlassFish</h3></div>
+        <div class="texts" style="transform: rotate(10deg);"><h3>Java Server Faces</h3></div>
+        <div class="texts" style="transform: rotate(-20deg);"><h3>Primefaces</h3></div>
+        <div class="texts" style="transform: rotate(30deg);"><h3>Servlet</h3></div>
+        <div class="texts" style="transform: rotate(-15deg);"><h3>Javascript</h3></div>
+        <div class="texts" style="transform: rotate(10deg);"><h3>CSS</h3></div>
+        <div class="texts" style="transform: rotate(5deg);"><h3>JQuery</h3></div>
+        <div class="texts" style="transform: rotate(-10deg);"><h3>AJAX</h3></div>
+        <div class="texts" style="transform: rotate(25deg);"><h3>JSON</h3></div>
+        <div class="texts" style="transform: rotate(-5deg);"><h3>Hibernate</h3></div>
+        <div id="form" >
+        <h:form>
+        <h:outputLabel for="usr" style="display:inline-block;width:58px">username</h:outputLabel>
+        <h:inputText id="usr" value="#{login.username}" size="20"/><br/>
+        <h:outputLabel for="password" style="display:inline-block;width:58px">password</h:outputLabel>
+        <h:inputSecret id="password" value="#{login.password}" size="20"/>
+        <h:commandButton id="sbm" action="#{login.login}" value="Submit" style="position:relative;left:15px;"/>
+        </h:form>
+        </div>
+    </div>
+    
+
+        
+    
+</h:body>
+</html>
+
